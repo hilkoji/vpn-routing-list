@@ -1,0 +1,29 @@
+name: Update routing list
+on:
+  schedule:
+    - cron: '15 22 * * *'
+  workflow_dispatch:
+  push:
+    paths: ['update.py', 'test_update.py', 'additions.txt', 'exclusions.txt', '.github/workflows/update.yml']
+permissions:
+  contents: write
+concurrency:
+  group: routing-list
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - run: python3 -m unittest -v
+      - run: python3 update.py
+      - name: Publish changes
+        run: |
+          if ! git diff --quiet -- domains.txt; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- domains.txt
+            git commit -m 'Update public routing list'
+            git push
+          fi

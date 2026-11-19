@@ -1,0 +1,3 @@
+# Exclude the country-wide suffix, not individual .ua domains.
+.ua
+ua
